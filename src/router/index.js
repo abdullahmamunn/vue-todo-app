@@ -20,7 +20,7 @@ export default new Router({
     },
     {
       path: '/edit',
-      name: 'Todo',
+      name: 'edit',
       component: Edit
     }
   ]

@@ -1,9 +1,10 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <h4>{{error}}</h4>
+    <span style="color:green">{{getMsg}}</span>
+    <h5>{{error}}</h5>
     <input type="text" v-model="task">
-    <button @click="addData()">add skill</button>
+    <button @click="addData()">add todo</button>
      <table>
       <tr>
         <th>Sl</th>
@@ -14,8 +15,8 @@
         <td>{{++index}}</td>
         <td>{{info.task}}</td>
         <td>
-            <button @click="deleteData(index)">X</button>
-            <router-link to="/edit">Edit</router-link>
+            <button @click="deleteData(info.id)">X</button>
+            <router-link :to="{name:'edit',params:{id: info.id}}">Edit</router-link>
         </td>
       </tr>
      </table>
@@ -28,26 +29,30 @@ export default {
   name: 'todo',
   data () {
     return {
-      msg: 'This is my todo app',
+      msg: 'Todo app',
       task: null,
       skills:["php","python","perl","javaScript"],
       getInfo:{},
-      error: null
+      error: null,
+      getMsg: null
     }
   },
   methods: {
       addData(){
           var newTask = this.task
           var len = newTask.length
-          console.log(newTask);
+          console.log(len);
           if(len>0){
-            //console.log(task);
+           
               //this.getInfo.push(this.task)
               axios.post('http://localhost:8000/api/todo',{task: newTask}).then((res)=>{
                 this.getData()
-                console.log(res);
+                this.getMsg = 'Data added Successfully!'
+                var _this = this
+                 setInterval(function(){
+                 _this.getMsg = ''
+                },1500);
               }).catch((error)=>{
-                this.error = error.Error
                 console.log(error);
               })
           }else{  
@@ -60,11 +65,21 @@ export default {
           this.getInfo = res.data
         }).catch((error)=>{
           console.log(error);
-          this.error = error
+          //this.error = error
         })
       },
-      deleteData(index){
-         this.getInfo.splice(index,1)
+      deleteData(id){
+        axios.delete('http://localhost:8000/api/todo/'+id).then((res)=>{
+          //console.log(res.data);
+          var msg = res.data
+               this.getData()
+               this.getMsg = msg
+               var v = this
+                setInterval(function(){
+                 v.getMsg = ''
+                },1500);
+        })
+         //this.getInfo.splice(index,1)
       }
   },
   mounted: function(){
@@ -76,6 +91,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 ul{
     list-style: none;
 }
